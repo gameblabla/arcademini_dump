@@ -1,0 +1,18 @@
+CC = /opt/rs97-toolchain/bin/mipsel-linux-gcc
+CXX = /opt/rs97-toolchain/bin/mipsel-linux-g++
+LD = /opt/rs97-toolchain/bin/mipsel-linux-ld
+
+CFLAGS  = -O2 -mips32 -mno-abicalls -mplt -mno-mips16 -DARCADE_MINI -DSCALING -Wall -I/opt/rs97-toolchain/usr/mipsel-buildroot-linux-musl/sysroot/usr/include/SDL
+CXXFLAGS = $(CFLAGS) -DARCADE_MINI
+LDFLAGS = -lSDL -lSDLmain -lm -lSDL_mixer -lSDL_image -flto -s
+
+OBJS  = src/ram.o src/util_snd.o src/function.o src/get_resolution.o src/refresh.o src/dconv.o src/scene.o src/title.o src/init.o src/act.o src/option.o src/ending.o src/logo.o
+SOURCES = $(patsubst %.o, %.c, $(OBJS))
+
+all: gnp
+
+gnp: $(OBJS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+	
+clean:
+	rm $(OBJS)

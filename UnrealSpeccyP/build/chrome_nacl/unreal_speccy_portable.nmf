@@ -1,0 +1,9 @@
+{
+	"program": {
+		"portable": {
+			"pnacl-translate": {
+				"url": "unreal_speccy_portable.pexe"
+			}
+		}
+	}
+}

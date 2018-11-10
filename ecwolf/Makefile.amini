@@ -1,0 +1,50 @@
+PRGNAME     = ecwolf
+
+# define regarding OS, which compiler to use
+EXESUFFIX = 
+TOOLCHAIN = 
+CHAINPREFIX=/opt/rs97-toolchain
+CROSS_COMPILE=$(CHAINPREFIX)/usr/bin/mipsel-linux-
+CC = $(CROSS_COMPILE)gcc
+CXX = $(CROSS_COMPILE)g++
+LD = $(CROSS_COMPILE)g++
+SYSROOT     := $(CHAINPREFIX)/usr/mipsel-buildroot-linux-uclibc/sysroot
+SDL_CFLAGS  := $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
+SDL_LIBS    := $(shell $(SYSROOT)/usr/bin/sdl-config --libs)
+
+# change compilation / linking flag options
+F_OPTS		= -DHOME_SUPPORT -DNO_GTK -DISCASEINSENSITIVE -DUSE_GPL -fprofile-use
+#-fprofile-generate -fprofile-dir=/mnt/int_sd/profile
+CC_OPTS		= $(F_OPTS) $(SDL_CFLAGS) -Isrc/resourcefiles -Ideps/gdtoa -Ideps/gdtoa
+CFLAGS		+= -Ofast -fdata-sections -ffunction-sections -mno-abicalls -mips32 -mno-mips16 -mno-interlink-mips16 -mplt -mno-xgot -march=mips32 -mtune=mips32 -fdata-sections -ffunction-sections -mhard-float 
+CFLAGS 		+= -mlong32 -G0 -mlocal-sdata -mno-embedded-data -mno-check-zero-division -mno-fp-exceptions -mno-xgot
+CFLAGS 		+= $(F_OPTS) $(SDL_CFLAGS) -Isrc/resourcefiles
+
+CFLAGS      += -Ibzip2 -Igdtoa -Isrc/g_shared -Ijpeg-6b -Isrc -Isrc/dosbox -Isrc/g_blake -Isrc/g_shareds -Isrc/g_wolf -Ilzma/C -Isrc/r_2d -Isrc/r_data -Isrc/textures -Isrc/sfmt -Isrc/thingdef
+CFLAGS		+= -I$(SDL_INCLUDE) $(CC_OPTS)
+CXXFLAGS	= $(CFLAGS) -fno-rtti 
+LDFLAGS     = $(SDL_LDFLAGS) -lSDL -lSDL_image -lSDL_mixer -lSDL_net -lm -lz -lstdc++ -Wl,--as-needed -Wl,--gc-sections -flto -s
+
+# Files to be compiled
+SRCDIR    	= ./bzip2 ./src ./src/resourcefiles ./src/dosbox ./src/g_blake ./src/g_shared ./jpeg-6b
+SRCDIR    	+= ./src/g_shareds ./src/g_wolf ./src/r_2d ./src/r_data ./src/textures ./src/sfmt ./src/thingdef ./lzma/C
+SRCDIR    	+= ./textscreen  ./gdtoa
+VPATH     	= $(SRCDIR)
+SRC_C   	= $(foreach dir, $(SRCDIR), $(wildcard $(dir)/*.c))
+SRC_CP   	= $(foreach dir, $(SRCDIR), $(wildcard $(dir)/*.cpp))
+OBJ_C   	= $(notdir $(patsubst %.c, %.o, $(SRC_C)))
+OBJ_CP   	= $(notdir $(patsubst %.cpp, %.o, $(SRC_CP)))
+OBJS     	= $(OBJ_C) $(OBJ_CP)
+
+# Rules to make executable
+$(PRGNAME): $(OBJS)  
+	$(LD) $(CFLAGS) -o $(PRGNAME) $^ $(LDFLAGS)
+
+$(OBJ_C) : %.o : %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(OBJ_CP) : %.o : %.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+clean:
+	rm -f $(PRGNAME) *.o

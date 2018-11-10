@@ -1,0 +1,16 @@
+*.a
+*.gcda
+*.o
+*.elf
+*.dge
+*.bin
+*.ws
+*.wsc
+*.nes
+*.sfc
+*.opk
+*.lnx
+*.gb
+*.gbc
+*.md
+*.32x
