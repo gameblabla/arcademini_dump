@@ -1,0 +1,4 @@
+*.dge
+*.elf
+*.gcda
+*.o
